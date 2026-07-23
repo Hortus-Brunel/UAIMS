@@ -1,0 +1,51 @@
+
+
+--- Page 1 ---
+
+University Announcement System - Project
+ Specification
+1. Vision
+Build a centralized announcement platform for a university where information reaches only the
+intended audience through audience segmentation and role-based access control.
+2. Objectives
+Centralize communication, reduce misinformation, deliver targeted announcements, support
+university-wide notices, and provide secure administration.
+3. Users
+Students, Class Representatives, Club Leaders, Lecturers, Department Admins, Faculty Admins,
+Registrar/Student Affairs, System Administrator.
+4. Audience Segmentation
+Announcements may target: University, Faculty, Department, Academic Level, Course, Club,
+Class, or Individual. A user sees announcements matching any of their memberships.
+5. User Profile
+Each user stores: name, email, student/staff ID, faculty, department, level/year, class, clubs,
+account role.
+6. Access Levels
+Level 0: Student (view only). Level 1: Class Rep/Club Leader (post to class/club). Level 2:
+Department Admin (department scope; can promote L1). Level 3: Faculty Admin (faculty scope; can
+promote L2/L1). Level 4: University Admin (university scope; can promote L3 and below). Level 5:
+Super Admin (full control).
+7. Permissions
+L0: read/search/bookmark. L1+: create/edit own announcements within scope. L2+: manage
+department announcements. L3+: manage faculty announcements. L4+: university
+announcements. L5: full administration.
+8. Functional Requirements
+Authentication, user management, announcement creation/edit/delete, categories, attachments,
+search/filter, notifications, bookmarks, expiry dates, pinned announcements, moderation (optional).
+9. Non-Functional Requirements
+Responsive, secure, scalable, fast, mobile-friendly, audit logging.
+10. Suggested Database
+Tables: users, roles/levels, faculties, departments, classes, clubs, announcements,
+announcement_targets, categories, notifications, bookmarks, attachments, permissions,
+level_permissions.
+
+
+--- Page 2 ---
+
+11. Tech Stack
+Frontend: React + Vite + Tailwind. Backend: Node.js + Express. Database: PostgreSQL. Auth: JWT
++ bcrypt. Storage: Cloudinary/local. GitHub + CI/CD. Deploy: Vercel/Render/PostgreSQL host.
+12. Development Phases
+Requirements, UI/UX, DB design, Backend APIs, Frontend, Notifications, Testing, Deployment,
+Maintenance.
+13. Future Enhancements
+Read receipts, analytics, mobile app, push notifications, AI summarization, multilingual support.

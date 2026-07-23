@@ -1,0 +1,390 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum AccessLevel {
+  L0_STUDENT
+  L1_REP
+  L2_DEPT_ADMIN
+  L3_FACULTY_ADMIN
+  L4_UNIVERSITY_ADMIN
+  L5_SUPER_ADMIN
+}
+
+enum AnnouncementStatus {
+  draft
+  pending_approval
+  approved
+  scheduled
+  published
+  archived
+  rejected
+}
+
+enum TargetScope {
+  UNIVERSITY
+  FACULTY
+  DEPARTMENT
+  LEVEL
+  PROGRAMME
+  CLASS
+  CLUB
+  INDIVIDUAL
+}
+
+model Faculty {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String       @unique @db.VarChar(150)
+  shortCode   String       @unique @db.VarChar(15)
+  createdAt   DateTime     @default(now()) @db.Timestamptz
+  departments Department[]
+  users       User[]       @relation("UserFaculty")
+  clubs       Club[]
+
+  @@map("faculties")
+}
+
+model Department {
+  id          String                     @id @default(uuid()) @db.Uuid
+  facultyId   String                     @db.Uuid
+  faculty     Faculty                    @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  name        String                     @db.VarChar(150)
+  shortCode   String                     @db.VarChar(15)
+  createdAt   DateTime                   @default(now()) @db.Timestamptz
+  programmes  Programme[]
+  classes     Class[]
+  courses     Course[]
+  users       User[]                     @relation("UserDepartment")
+  memberships UserDepartmentMembership[]
+
+  @@unique([facultyId, name])
+  @@map("departments")
+}
+
+model AcademicLevel {
+  id      String   @id @default(uuid()) @db.Uuid
+  name    String   @unique @db.VarChar(50)
+  classes Class[]
+  courses Course[]
+  users   User[]
+
+  @@map("academic_levels")
+}
+
+model Programme {
+  id           String     @id @default(uuid()) @db.Uuid
+  departmentId String     @db.Uuid
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  name         String     @db.VarChar(150)
+  shortCode    String     @db.VarChar(15)
+  users        User[]
+
+  @@unique([departmentId, name])
+  @@map("programmes")
+}
+
+model Class {
+  id           String                @id @default(uuid()) @db.Uuid
+  departmentId String                @db.Uuid
+  department   Department            @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  levelId      String                @db.Uuid
+  level        AcademicLevel         @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  name         String                @db.VarChar(100)
+  academicYear String                @db.VarChar(20)
+  createdAt    DateTime              @default(now()) @db.Timestamptz
+  memberships  UserClassMembership[]
+
+  @@unique([departmentId, levelId, name, academicYear])
+  @@map("classes")
+}
+
+model Course {
+  id           String                 @id @default(uuid()) @db.Uuid
+  departmentId String                 @db.Uuid
+  department   Department             @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  code         String                 @db.VarChar(20)
+  title        String                 @db.VarChar(150)
+  levelId      String?                @db.Uuid
+  level        AcademicLevel?         @relation(fields: [levelId], references: [id])
+  memberships  UserCourseMembership[]
+
+  @@unique([departmentId, code])
+  @@map("courses")
+}
+
+model Club {
+  id          String               @id @default(uuid()) @db.Uuid
+  name        String               @unique @db.VarChar(150)
+  description String?              @db.Text
+  facultyId   String?              @db.Uuid
+  faculty     Faculty?             @relation(fields: [facultyId], references: [id])
+  createdAt   DateTime             @default(now()) @db.Timestamptz
+  memberships UserClubMembership[]
+
+  @@map("clubs")
+}
+
+model User {
+  id                 String                     @id @default(uuid()) @db.Uuid
+  fullName           String                     @db.VarChar(150)
+  email              String                     @unique @db.VarChar(150)
+  matricule          String?                    @unique @db.VarChar(30)
+  passwordHash       String                     @db.VarChar(255)
+  accessLevel        AccessLevel                @default(L0_STUDENT)
+  primaryFacultyId   String?                    @db.Uuid
+  primaryFaculty     Faculty?                   @relation("UserFaculty", fields: [primaryFacultyId], references: [id])
+  primaryDepartmentId String?                   @db.Uuid
+  primaryDepartment  Department?                @relation("UserDepartment", fields: [primaryDepartmentId], references: [id])
+  levelId            String?                    @db.Uuid
+  level              AcademicLevel?             @relation(fields: [levelId], references: [id])
+  programmeId        String?                    @db.Uuid
+  programme          Programme?                 @relation(fields: [programmeId], references: [id])
+  avatarUrl          String?                    @db.Text
+  isEmailVerified    Boolean                    @default(false)
+  isActive           Boolean                    @default(true)
+  createdAt          DateTime                   @default(now()) @db.Timestamptz
+  updatedAt          DateTime                   @updatedAt @db.Timestamptz
+  deptMemberships    UserDepartmentMembership[]
+  classMemberships   UserClassMembership[]
+  clubMemberships    UserClubMembership[]
+  courseMemberships  UserCourseMembership[]
+  announcements      Announcement[]             @relation("Author")
+  moderated          Announcement[]             @relation("Moderator")
+  bookmarks          Bookmark[]
+  notifications      Notification[]
+  auditLogs          AuditLog[]
+  activityLogs       ActivityLog[]
+  refreshTokens      RefreshToken[]
+  sessions           UserSession[]
+  reactions          Reaction[]
+  comments           Comment[]
+
+  @@map("users")
+}
+
+model UserDepartmentMembership {
+  userId       String     @db.Uuid
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departmentId String     @db.Uuid
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  roleInDept   String     @default("member") @db.VarChar(50)
+
+  @@id([userId, departmentId])
+  @@map("user_department_memberships")
+}
+
+model UserClassMembership {
+  userId  String  @db.Uuid
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classId String  @db.Uuid
+  class   Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  isRep   Boolean @default(false)
+
+  @@id([userId, classId])
+  @@map("user_class_memberships")
+}
+
+model UserClubMembership {
+  userId   String  @db.Uuid
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clubId   String  @db.Uuid
+  club     Club    @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  isLeader Boolean @default(false)
+
+  @@id([userId, clubId])
+  @@map("user_club_memberships")
+}
+
+model UserCourseMembership {
+  userId   String @db.Uuid
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String @db.Uuid
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([userId, courseId])
+  @@map("user_course_memberships")
+}
+
+model Category {
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String         @unique @db.VarChar(80)
+  description   String?        @db.Text
+  colorHex      String         @default("#1B3A6B") @db.VarChar(7)
+  announcements Announcement[]
+
+  @@map("categories")
+}
+
+model Announcement {
+  id             String               @id @default(uuid()) @db.Uuid
+  title          String               @db.VarChar(200)
+  content        String               @db.Text
+  authorId       String               @db.Uuid
+  author         User                 @relation("Author", fields: [authorId], references: [id], onDelete: Cascade)
+  categoryId     String?              @db.Uuid
+  category       Category?            @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  status         AnnouncementStatus   @default(draft)
+  isPinned       Boolean              @default(false)
+  isImportant    Boolean              @default(false)
+  publishAt      DateTime?            @db.Timestamptz
+  expiresAt      DateTime?            @db.Timestamptz
+  approvedBy     String?              @db.Uuid
+  moderator      User?                @relation("Moderator", fields: [approvedBy], references: [id], onDelete: SetNull)
+  approvedAt     DateTime?            @db.Timestamptz
+  rejectionReason String?             @db.Text
+  createdAt      DateTime             @default(now()) @db.Timestamptz
+  updatedAt      DateTime             @updatedAt @db.Timestamptz
+  targets        AnnouncementTarget[]
+  attachments    Attachment[]
+  bookmarks      Bookmark[]
+  notifications  Notification[]
+  reactions      Reaction[]
+  comments       Comment[]
+
+  @@map("announcements")
+}
+
+model AnnouncementTarget {
+  id             String       @id @default(uuid()) @db.Uuid
+  announcementId String       @db.Uuid
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  scope          TargetScope
+  scopeId        String?      @db.Uuid
+
+  @@unique([announcementId, scope, scopeId])
+  @@map("announcement_targets")
+}
+
+model Attachment {
+  id             String       @id @default(uuid()) @db.Uuid
+  announcementId String       @db.Uuid
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  fileName       String       @db.VarChar(255)
+  fileUrl        String       @db.Text
+  fileType       String?      @db.VarChar(50)
+  fileSizeBytes  Int?
+  uploadedAt     DateTime     @default(now()) @db.Timestamptz
+
+  @@map("attachments")
+}
+
+model Bookmark {
+  userId         String       @db.Uuid
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  announcementId String       @db.Uuid
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now()) @db.Timestamptz
+
+  @@id([userId, announcementId])
+  @@map("bookmarks")
+}
+
+model Notification {
+  id             String        @id @default(uuid()) @db.Uuid
+  userId         String        @db.Uuid
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  announcementId String?       @db.Uuid
+  announcement   Announcement? @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  message        String        @db.VarChar(255)
+  isRead         Boolean       @default(false)
+  createdAt      DateTime      @default(now()) @db.Timestamptz
+
+  @@map("notifications")
+}
+
+model Permission {
+  id               String            @id @default(uuid()) @db.Uuid
+  code             String            @unique @db.VarChar(80)
+  levelPermissions LevelPermission[]
+
+  @@map("permissions")
+}
+
+model LevelPermission {
+  accessLevel  AccessLevel
+  permissionId String      @db.Uuid
+  permission   Permission  @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([accessLevel, permissionId])
+  @@map("level_permissions")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorId     String?  @db.Uuid
+  actor       User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action      String   @db.VarChar(100)
+  targetTable String?  @db.VarChar(50)
+  targetId    String?  @db.Uuid
+  metadata    Json?
+  ipAddress   String?  @db.VarChar(45)
+  createdAt   DateTime @default(now()) @db.Timestamptz
+
+  @@map("audit_logs")
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   @db.VarChar(100)
+  details   String?  @db.Text
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  @@map("activity_logs")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  @@map("refresh_tokens")
+}
+
+model UserSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique @db.VarChar(255)
+  ipAddress String?  @db.VarChar(45)
+  userAgent String?  @db.Text
+  expiresAt DateTime @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  @@map("user_sessions")
+}
+
+model Reaction {
+  id             String       @id @default(uuid()) @db.Uuid
+  announcementId String       @db.Uuid
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  userId         String       @db.Uuid
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           String       @db.VarChar(20)
+  createdAt      DateTime     @default(now()) @db.Timestamptz
+
+  @@unique([announcementId, userId, type])
+  @@map("reactions")
+}
+
+model Comment {
+  id             String       @id @default(uuid()) @db.Uuid
+  announcementId String       @db.Uuid
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  userId         String       @db.Uuid
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content        String       @db.Text
+  createdAt      DateTime     @default(now()) @db.Timestamptz
+  updatedAt      DateTime     @updatedAt @db.Timestamptz
+
+  @@map("comments")
+}
