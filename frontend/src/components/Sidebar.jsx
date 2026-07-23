@@ -71,7 +71,7 @@ export default function Sidebar({ open, onClose }) {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-100 dark:border-slate-800">
-          <img src="http://localhost:5000/uploads/icon.png" alt="UB Logo" className="h-10 w-10 object-contain rounded-full drop-shadow-sm flex-shrink-0" />
+          <img src="/icon.png" alt="UB Logo" className="h-10 w-10 object-contain rounded-full drop-shadow-sm flex-shrink-0" />
           <div>
             <p className="font-bold text-sm text-brand-700 dark:text-brand-300 leading-tight">UB - UAIMS</p>
             <p className="text-[10px] text-slate-400 leading-tight">Announcement System</p>

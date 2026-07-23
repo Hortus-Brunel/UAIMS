@@ -18,7 +18,7 @@ export function PageLoader() {
     <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="flex flex-col items-center gap-4">
         <div className="w-16 h-16 rounded-full bg-brand-700 flex items-center justify-center shadow-lg p-2">
-          <img src="http://localhost:5000/uploads/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
+          <img src="/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='flex'; }} />
           <span className="text-white font-bold text-lg hidden">U</span>
         </div>
         <Spinner size="lg" />

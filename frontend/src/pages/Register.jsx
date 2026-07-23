@@ -88,7 +88,7 @@ export default function Register() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="relative text-center">
           <div className="h-20 w-20 rounded-3xl bg-white/10 flex items-center justify-center mx-auto mb-4 shadow-2xl p-2">
-            <img src="http://localhost:5000/uploads/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full drop-shadow-lg" />
+            <img src="/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full drop-shadow-lg" />
           </div>
           <h1 className="text-3xl font-bold mb-2">Join UB - UAIMS</h1>
           <p className="text-white/70 mb-6">Create your account and connect with your university community.</p>
@@ -105,7 +105,7 @@ export default function Register() {
         <div className="w-full max-w-lg animate-slide-up">
           <div className="flex items-center gap-2 mb-6 lg:hidden">
             <div className="h-10 w-10 rounded-xl bg-brand-700 flex items-center justify-center p-1">
-              <img src="http://localhost:5000/uploads/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full" />
+              <img src="/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full" />
             </div>
             <span className="font-bold text-brand-700 dark:text-brand-300">UB - UAIMS</span>
           </div>

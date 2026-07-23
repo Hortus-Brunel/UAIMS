@@ -62,7 +62,9 @@ apiClient.interceptors.response.use(
       }
 
       try {
-        const { data } = await axios.post(`/api/auth/refresh`, { refreshToken });
+        const rawBase = import.meta.env.VITE_API_URL || '';
+        const backendBase = rawBase.endsWith('/api') ? rawBase.slice(0, -4) : rawBase.replace(/\/$/, '');
+        const { data } = await axios.post(`${backendBase}/api/auth/refresh`, { refreshToken });
         const newToken = data.data.accessToken;
         localStorage.setItem('accessToken', newToken);
         apiClient.defaults.headers.common.Authorization = `Bearer ${newToken}`;

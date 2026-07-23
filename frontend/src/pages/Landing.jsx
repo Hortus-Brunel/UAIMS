@@ -17,7 +17,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-9 w-9 rounded-full bg-brand-700 flex items-center justify-center shadow-sm overflow-hidden">
-              <img src="http://localhost:5000/uploads/icon.png" alt="UAIMS Logo" className="w-full h-full object-cover" />
+              <img src="/icon.png" alt="UAIMS Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <p className="font-bold text-sm text-brand-700 dark:text-brand-300 leading-tight">UAIMS</p>

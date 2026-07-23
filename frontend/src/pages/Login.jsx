@@ -51,7 +51,7 @@ export default function Login() {
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/10 rounded-full translate-y-1/2 -translate-x-1/2" />
         <div className="relative text-center">
           <div className="h-24 w-24 rounded-3xl bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 shadow-2xl p-2">
-            <img src="http://localhost:5000/uploads/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full drop-shadow-lg" />
+            <img src="/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full drop-shadow-lg" />
           </div>
           <h1 className="text-4xl font-bold mb-3">UB - UAIMS</h1>
           <p className="text-white/70 text-lg mb-8">University Announcement<br />&amp; Information Management System</p>
@@ -69,7 +69,7 @@ export default function Login() {
           {/* Mobile logo */}
           <div className="flex items-center gap-2 mb-8 lg:hidden">
             <div className="h-10 w-10 rounded-xl bg-brand-700 flex items-center justify-center p-1">
-              <img src="http://localhost:5000/uploads/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full" />
+              <img src="/icon.png" alt="UB Logo" className="w-full h-full object-contain rounded-full" />
             </div>
             <span className="font-bold text-brand-700 dark:text-brand-300">UB - UAIMS</span>
           </div>
