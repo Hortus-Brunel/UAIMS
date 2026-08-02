@@ -21,8 +21,30 @@ const app = express();
 
 // ─── Security middleware ───────────────────────────────────────────────────────
 app.use(helmet());
+
+const configuredOrigins = [
+  process.env.CLIENT_ORIGIN,
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5000'
+].filter(Boolean).map(url => url.replace(/\/$/, ''));
+
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const sanitized = origin.replace(/\/$/, '');
+    if (
+      configuredOrigins.includes(sanitized) ||
+      configuredOrigins.includes('*') ||
+      sanitized.endsWith('.vercel.app') ||
+      sanitized.endsWith('.onrender.com') ||
+      process.env.NODE_ENV !== 'production'
+    ) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS policy blocked request from ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
