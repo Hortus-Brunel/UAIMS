@@ -1,4 +1,4 @@
-﻿const { PrismaClient } = require("@prisma/client");
+const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
 const prisma = new PrismaClient();
 
@@ -149,7 +149,7 @@ async function main() {
   const hash = await bcrypt.hash("Admin123!", 12);
   const admin = await prisma.user.upsert({
     where: { email: "oassonkeng@gmail.com" },
-    update: { fullName:"ASSONKENG NGUIMDO ORTUS BRUNEL", accessLevel:"L5_SUPER_ADMIN", isEmailVerified:true, isActive:true },
+    update: { fullName:"ASSONKENG NGUIMDO ORTUS BRUNEL", passwordHash:hash, accessLevel:"L5_SUPER_ADMIN", isEmailVerified:true, isActive:true },
     create: { fullName:"ASSONKENG NGUIMDO ORTUS BRUNEL", email:"oassonkeng@gmail.com", matricule:"FE24A228", passwordHash:hash, accessLevel:"L5_SUPER_ADMIN", isEmailVerified:true, isActive:true }
   });
   console.log(`Super Admin seeded: ${admin.email}`);
