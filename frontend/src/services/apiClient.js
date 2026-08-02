@@ -5,7 +5,7 @@ const API_BASE = rawApiBase.endsWith('/api') ? rawApiBase : `${rawApiBase.replac
 
 const apiClient = axios.create({
   baseURL: API_BASE,
-  timeout: 15000,
+  timeout: 60000, // 60s timeout to allow Render free tier cold starts
 });
 
 // ── Request interceptor: attach access token ──────────────────────────────────
